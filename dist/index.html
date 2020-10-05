@@ -1,0 +1,65 @@
+<html>
+    <head>
+        <title></title>
+        <script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+
+        <script src="/52843c72fed31b3ec2259ff33e4413c3.js"></script>
+    </head>
+    <body>
+        <textarea rows="20" cols="30" id="chat"></textarea><br>
+        <input type="text" id="user">
+        <input type="button" value="msg submit" onclick="myOnClick()">
+        <input type="button" value="연속 메세지 받기." onclick="myOnClick2()">
+    </body>
+    <script src="/027b3f81cc9585c01df2d534871f9f76.js"></script>
+    <script>var ws = new WebSocket("ws://localhost:3100");
+ws.binaryType = "arraybuffer";
+$(function () {
+  //var addressbook = new AddressBook();
+  ws.onopen = function (event) {
+    var sendData = {
+      event: 'open'
+    };
+    ws.send(JSON.stringify(sendData));
+  };
+
+  ws.onmessage = function (event) {
+    console.log(event);
+    var buf = new Uint8Array(event.data);
+    console.log(buf);
+    var pbf = new Pbf(buf);
+    console.log(pbf);
+    var obj = Person.read(pbf);
+    console.log(obj.id);
+    console.log(obj.name);
+    /*
+    let recData = JSON.parse(event.data);
+    switch (recData.event) {
+        case 'req':
+            $('#chat').val($('#chat').val() + recData.data + '\n');
+            break;
+        default:
+    }
+    */
+  };
+});
+
+function myOnClick() {
+  var sendData = {
+    event: 'req',
+    data: $('#user').val()
+  };
+  ws.send(JSON.stringify(sendData));
+  $('#user').val('');
+}
+
+function myOnClick2() {
+  var sendData = {
+    event: 'req2',
+    data: {
+      comment: ''
+    }
+  };
+  ws.send(JSON.stringify(sendData));
+}</script>
+</html>

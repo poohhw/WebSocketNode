@@ -1,0 +1,83 @@
+<html>
+    <head>
+        <title></title>
+        <script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+
+        
+    </head>
+    <body>
+        <textarea rows="20" cols="30" id="chat"></textarea><br>
+        <input type="text" id="user">
+        <input type="button" value="msg submit" onclick="myOnClick()">
+        <input type="button" value="연속 메세지 받기." onclick="myOnClick2()">
+    </body>
+    <script src="./addressbook.browser.proto.js"></script>
+    <script src="/pbf.js"></script>
+    <script>
+
+        var ws = new WebSocket("ws://localhost:3100");
+        ws.binaryType = "arraybuffer";
+
+        $(() => {
+
+            //var addressbook = new AddressBook();
+            ws.onopen = (event) => {
+                let sendData = {
+                    event: 'open'
+                }
+                ws.send(JSON.stringify(sendData));
+            }
+            ws.onmessage = (event) => {
+                console.log(event);
+
+                var buf = new Uint8Array(event.data);
+                console.log(buf);
+                var pbf = new Pbf(buf);
+                console.log(pbf);
+
+                var obj = Person.read(pbf);
+                console.log(obj.id);
+                console.log(obj.name);
+
+                /*
+                let recData = JSON.parse(event.data);
+                switch (recData.event) {
+                    case 'req':
+                        $('#chat').val($('#chat').val() + recData.data + '\n');
+                        break;
+                    default:
+                }
+                */
+
+            }
+        });
+
+        function myOnClick() {
+            var pbf = new Pbf();
+
+            var obj = { reqType: "req", reqQeury: "data" };
+      
+            console.log(Qeury);
+            Qeury.write(obj,pbf);
+            console.log(Qeury);
+
+            var data = Qeury.read(pbf);
+            console.log(data.reqType + "," + data.reqQeury);
+
+            //console.log(buffer);
+
+            // ws.send($('#user').val());
+            // $('#user').val('');
+        }
+
+        function myOnClick2() {
+            let sendData = {
+                event: 'req2',
+                data: {
+                    comment: ''
+                }
+            };
+            ws.send(JSON.stringify(sendData));
+        }
+    </script>
+</html>

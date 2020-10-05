@@ -1,0 +1,24 @@
+web_gis_rnd_fishgear::RND_BOAT_STATUS boat_status;
+boat_status.set_ship_id(SensorID);
+boat_status.set_mainconn_alarm(web_gis_rnd_fishgear::StatusType(main_comm_alarm));
+boat_status.set_gnsslock_alarm(web_gis_rnd_fishgear::StatusType(gnss_lock_alarm));
+boat_status.set_year(year);
+boat_status.set_month(month);
+...
+...
+...
+
+int bufSize = 0;
+bufSize += MessageHeaderSize + boat_status.ByteSize();
+protobuf::uint8* outputBuf = new protobuf::uint8[bufSize];
+
+// 메세지를 출력할 스트림 생성
+protobuf::io::ArrayOutputStream output_array_stream(outputBuf, bufSize);
+protobuf::io::CodedOutputStream output_coded_stream(&output_array_stream);
+
+// 메세지를 스트림에 쓴다
+MessageHeader messageHeader;
+messageHeader.size = boat_status.ByteSize();
+messageHeader.type = web_gis_rnd_fishgear::MessageTypeFish::BOAT_STATUS;
+output_coded_stream.WriteRaw(&messageHeader, sizeof(MessageHeader));
+boat_status.SerializeToCodedStream(&output_coded_stream);
